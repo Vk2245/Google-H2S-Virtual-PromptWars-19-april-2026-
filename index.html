@@ -1,22 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="WasteWatch – AI-powered civic waste reporting for Swachh Bharat" />
-<title>WasteWatch – AI Civic Waste Intelligence</title>
-<link rel="manifest" href="/manifest.json" />
-<link rel="icon" type="image/webp" href="/logo.webp" />
-<meta name="theme-color" content="#f97316" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
-rel="stylesheet" />
-<style>
-* {
+<html data-theme="dark" lang="en" class="h-full">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+     <meta content="WasteWatch – AI-powered civic waste reporting. Integrated with Google Gemini 2.5 Flash for high-fidelity waste intelligence." name="description"/>
+  <title>
+   WasteWatch – AI Civic Waste Intelligence
+  </title>
+  <link href="/manifest.json" rel="manifest"/>
+  <link href="/logo.webp" rel="icon" type="image/webp"/>
+  <meta content="#f97316" name="theme-color"/>
+  <meta content="yes" name="apple-mobile-web-app-capable"/>
+  <meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"/>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+  <style>
+   * {
 font-family: 'Inter', sans-serif;
 box-sizing: border-box;
 margin: 0
@@ -1110,692 +1113,1093 @@ transform: translate(-30px, 30px) scale(0.9)
 transform: translate(20px, 80px) scale(1.05)
 }
 }
-</style>
-</head>
-<body>
-<div id="pwa-install-banner" class="hidden fixed top-0 left-0 w-full bg-gradient-to-r from-orange-600 to-amber-500 text-white text-center py-3 px-4 text-sm font-bold z-[100] shadow-xl flex items-center justify-between border-b border-orange-400">
-<div class="flex items-center gap-2">
-<span>📱 Install WasteWatch App</span>
-</div>
-<div class="flex items-center gap-3">
-<button id="pwa-install-btn" class="bg-white text-orange-600 px-4 py-1.5 rounded-lg shadow-md text-xs uppercase tracking-wide hover:bg-orange-50 active:scale-95 transition">Install</button>
-<button onclick="document.getElementById('pwa-install-banner').classList.add('hidden')" class="text-white/80 hover:text-white text-lg leading-none cursor-pointer">✕</button>
-</div>
-</div>
-<div class="bg-orbs">
-<div class="orb orb1"></div>
-<div class="orb orb2"></div>
-<div class="orb orb3"></div>
-</div>
-<div id="toast-box" aria-live="polite"></div>
-<div id="auth-overlay">
-<div class="glass rounded-3xl p-8 sm:p-10 w-full max-w-md mx-4 enter" style="border:1px solid rgba(255,255,255,.1)">
-<div class="text-center mb-6">
-<div class="w-20 h-20 logo-container logo-border-glow mb-4 mx-auto">
-<img src="/logo.png" class="logo-img" alt="Logo" />
-</div>
-<h1
-class="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-white to-green-400 flex items-center justify-center gap-2">
-WasteWatch <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg"
-class="h-5 w-auto rounded-sm drop-shadow-sm ml-1" alt="IN" /></h1>
-<p class="text-sm mt-2" style="color:var(--c3)">AI-Powered Civic Intelligence Platform</p>
-</div>
-<form class="space-y-3" id="auth-form" onsubmit="event.preventDefault(); doAuth();">
-<div class="space-y-1">
-<input id="auth-phone" type="tel" placeholder="📱 10-digit Phone Number" class="w-full px-4 py-3.5 text-sm" required />
-</div>
-<div id="reg-fields" class="hidden space-y-3">
-<input id="auth-name" type="text" placeholder="👤 Full Name" class="w-full px-4 py-3.5 text-sm" />
-<div class="flex gap-2">
-<input id="auth-otp" type="text" placeholder="🔢 6-digit OTP" class="flex-1 px-4 py-3.5 text-sm" maxlength="6" />
-<button type="button" id="otp-btn" onclick="sendAuthOTP()" class="btn-outline px-3 py-1.5 rounded-xl text-[10px] font-bold">Get OTP</button>
-</div>
-<p id="dev-otp-msg" class="hidden text-[10px] font-bold text-orange-400 mt-1">⚠️ Showing OTP on screen because SMS delivery is in development phase.</p>
-</div>
-<input id="auth-pwd" type="password" placeholder="🔒 Password" class="w-full px-4 py-3.5 text-sm" required />
-<p id="auth-err" class="text-xs font-bold text-red-500 hidden bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-2 text-center"></p>
-<button type="submit" id="auth-btn" class="w-full btn-primary py-4 rounded-2xl text-base tracking-wide shadow-lg">🚀 Sign In</button>
-<p class="text-center">
-<button type="button" onclick="toggleAuthMode()" id="auth-switch" class="text-xs font-semibold hover:text-orange-400 transition" style="color:var(--c3);background:none;border:none;cursor:pointer">Need an account? Register here →</button>
-</p>
-</form>
-<div class="mt-4 pt-4 border-t" style="border-color:var(--border)">
-<button type="button" onclick="demoLogin()" id="demo-btn"
-class="w-full py-3.5 rounded-2xl text-sm font-bold tracking-wide shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
-style="background:linear-gradient(135deg, rgba(249,115,22,.15), rgba(34,197,94,.15)); border:1.5px solid rgba(249,115,22,.3); color:var(--c1); backdrop-filter:blur(8px)">
-🎮 Try Demo — Instant Access
-</button>
-<p class="text-center mt-2 text-[10px] font-medium" style="color:var(--c3)">No registration needed · Explore all features instantly</p>
-</div>
-<div class="mt-4 pt-4 border-t text-center" style="border-color:var(--border)">
-<div class="flex justify-center gap-6 text-xs font-bold" style="color:var(--c3)">
-<span>🤖 Gemini AI</span><span>📍 GPS Tracking</span><span>🏆 Gamified</span>
-</div>
-</div>
-</div>
-</div>
-<div id="app-wrap" class="hidden">
-<nav class="sticky top-0 z-50">
-<div class="tri-bar"></div>
-<div class="glass-solid transition-all px-3 sm:px-8 py-1.5 sm:py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-6"
-style="border-bottom:1px solid var(--border)">
-<div class="max-w-7xl sm:max-w-none mx-auto sm:mx-0 w-full sm:w-auto flex justify-between items-center sm:gap-4 sm:order-1">
-<div class="flex items-center gap-2 sm:gap-3">
-<div class="w-9 h-9 sm:w-12 sm:h-12 logo-container logo-border-glow shrink-0">
-<img src="/logo.png" class="logo-img" alt="Logo" />
-</div>
-<div>
-<h1 class="text-base sm:text-2xl font-black leading-none flex items-center gap-1.5 text-nowrap">WasteWatch <img
-src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg"
-class="h-3 sm:h-4.5 rounded-[1.5px] sm:rounded-sm pt-[2px]" alt="IN" /></h1>
-<p class="text-[7px] sm:text-[10px] uppercase tracking-[.25em] font-bold mt-0.5" style="color:var(--c3)">
-Swachh Bharat AI</p>
-</div>
-</div>
-<div class="flex flex-col items-center shrink-0 ml-4 sm:hidden cursor-pointer" onclick="openProfile()">
-<div
-class="w-5 h-5 rounded-full bg-gradient-to-br from-orange-400 to-green-400 flex items-center justify-center text-[10px] shadow border border-white/30 mb-0.5 text-white overflow-hidden relative" id="header-avatar-m">
-👤</div>
-<span class="text-[7px] font-bold text-center whitespace-nowrap leading-tight"
-id="user-name-display-mobile" style="color:var(--c1)"></span>
-</div>
-</div>
-<div class="max-w-7xl sm:max-w-none mx-auto sm:mx-0 w-full sm:w-auto flex justify-between items-center gap-2 mt-0 sm:order-2">
-<div class="shrink-0">
-<span
-class="inline-flex items-center gap-1 sm:gap-2 text-[8px] sm:text-[12px] font-bold px-2 py-0.5 sm:py-2 rounded-full border shadow-sm"
-style="color:var(--accent);background:rgba(249,115,22,0.1);border-color:var(--accent);backdrop-filter:blur(8px)">🤖
-Google Gemini &amp; Groq</span>
-</div>
-<div class="flex items-center gap-1 sm:gap-3 shrink-0">
-<button onclick="toggleTheme()" id="theme-btn"
-class="flex items-center justify-center h-5 w-6 sm:h-9 sm:w-10 rounded-md sm:rounded-xl border shadow-sm text-[10px] sm:text-base"
-style="border-color:var(--border2);background:var(--pill-bg)">🌙</button>
-<button onclick="toggleLang()" id="lang-toggle"
-class="flex items-center justify-center h-5 w-6 sm:h-9 sm:w-10 rounded-md sm:rounded-xl border shadow-sm text-[8px] sm:text-[11px] font-bold"
-style="border-color:var(--border2);background:var(--pill-bg);color:var(--c1)">HI</button>
-<button onclick="logout()"
-class="flex items-center justify-center text-[8px] sm:text-[11px] font-bold h-5 sm:h-9 px-2 sm:px-4 rounded-md sm:rounded-xl border shadow-sm"
-style="color:var(--c2); border-color:var(--border2);background:var(--pill-bg)">Logout</button>
-<div class="hidden sm:flex flex-col items-center shrink-0 ml-2 cursor-pointer" onclick="openProfile()">
-<div
-class="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-green-400 flex items-center justify-center text-sm shadow border border-white/30 mb-0.5 text-white overflow-hidden relative" id="header-avatar-d">
-👤</div>
-<span class="text-[10px] font-bold text-center whitespace-nowrap leading-tight"
-id="user-name-display-desktop" style="color:var(--c1)"></span>
-</div>
-</div>
-</div>
-<div class="max-w-7xl mx-auto w-full mt-1.5 sm:hidden">
-<div
-class="flex gap-0.5 rounded-[8px] p-0 w-full justify-between items-center shadow-sm border"
-style="background:var(--pill-bg);border-color:var(--border)" id="nav-pills-mobile">
-<button onclick="showTab('citizen')"
-class="nav-pill-citizen pill-m active flex-1 flex flex-col justify-center items-center py-0.5 px-0 gap-0 text-[7px] ripple-btn focus:outline-none"><span
-class="text-xs opacity-90 block leading-none">🗳️</span> <span data-i18n="nav_report"
-class="block font-black tracking-wide uppercase">Report</span></button>
-<button onclick="showTab('leaderboard')"
-class="nav-pill-leaderboard pill-m flex-1 flex flex-col justify-center items-center py-0.5 px-0 gap-0 text-[7px] ripple-btn focus:outline-none"><span
-class="text-xs opacity-90 block leading-none">🏆</span> <span data-i18n="nav_lb"
-class="block font-black tracking-wide uppercase">Leaderboard</span></button>
-<button onclick="showTab('admin')"
-class="nav-pill-admin pill-m flex-1 flex flex-col justify-center items-center py-0.5 px-0 gap-0 text-[7px] ripple-btn focus:outline-none"><span
-class="text-xs opacity-90 block leading-none">📊</span> <span data-i18n="nav_dash"
-class="block font-black tracking-wide uppercase">Dashboard</span></button>
-</div>
-</div>
-</div>
-</nav>
-<div class="max-w-7xl mx-auto px-4 sm:px-6 mt-6 hidden sm:block">
-<div
-class="flex gap-2 rounded-2xl p-1.5 w-full justify-center items-center shadow-xl border glass"
-style="border-color:var(--border);max-width:max-content;margin-left:auto;margin-right:auto" id="nav-pills-desktop">
-<button onclick="showTab('citizen')"
-class="nav-pill-citizen pill active flex items-center py-2 px-6 gap-2 text-sm font-black tracking-wider uppercase ripple-btn focus:outline-none">🗳️ <span data-i18n="nav_report">Report</span></button>
-<button onclick="showTab('leaderboard')"
-class="nav-pill-leaderboard pill flex items-center py-2 px-6 gap-2 text-sm font-black tracking-wider uppercase ripple-btn focus:outline-none">🏆 <span data-i18n="nav_lb">Leaderboard</span></button>
-<button onclick="showTab('admin')"
-class="nav-pill-admin pill flex items-center py-2 px-6 gap-2 text-sm font-black tracking-wider uppercase ripple-btn focus:outline-none">📊 <span data-i18n="nav_dash">Dashboard</span></button>
-</div>
-</div>
-<div id="profile-modal" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-<div class="w-full max-w-md bg-[--bg] border border-[--border2] rounded-3xl overflow-hidden shadow-[--shadow-hover] flex flex-col max-h-[90vh]">
-<div class="flex justify-between items-center p-5 border-b border-[--border]">
-<h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-green-500">Your Profile</h2>
-<button onclick="closeProfile()" class="text-2xl text-[--c2] hover:text-red-500">&times;</button>
-</div>
-<div class="p-6 overflow-y-auto hide-scroll flex-1 text-[--c1] space-y-6">
-<div class="flex items-center gap-4">
-<div class="relative group">
-<div class="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-orange-400 to-green-500 border-[3px] border-[--glass2] shadow-lg flex items-center justify-center text-3xl" id="profile-avatar">
-👤
-</div>
-<label class="absolute bottom-0 right-0 w-7 h-7 bg-[--accent] rounded-full flex justify-center items-center cursor-pointer shadow-md text-white text-[10px]">
-📷
-<input type="file" class="hidden" accept="image/*" onchange="uploadAvatar(this)">
-</label>
-</div>
-<div class="flex-1">
-<div class="flex items-center gap-2">
-<h3 class="text-xl font-bold m-0 p-0" id="profile-name"></h3>
-<button onclick="editProfileName()" class="text-[10px] bg-[--glass] px-2 py-0.5 rounded text-[--c2] border border-[--border]">✎</button>
-</div>
-<p class="text-xs font-mono text-[--c3] mt-1" id="profile-phone"></p>
-<p class="text-[10px] text-[--c3] mt-1">Joined: <span id="profile-joined"></span></p>
-</div>
-</div>
-<div class="grid grid-cols-3 gap-3">
-<div class="p-3 bg-[--glass2] rounded-2xl border border-[--border] text-center">
-<span class="block text-[28px] font-black grad-text" id="profile-points">0</span>
-<span class="block text-[9px] uppercase tracking-wider font-bold text-[--c2] mt-1">Points</span>
-</div>
-<div class="p-3 bg-[--glass2] rounded-2xl border border-[--border] text-center">
-<span class="block text-[28px] font-black text-orange-500" id="profile-rank">-</span>
-<span class="block text-[9px] uppercase tracking-wider font-bold text-[--c2] mt-1">Rank</span>
-</div>
-<div class="p-3 bg-[--glass2] rounded-2xl border border-[--border] text-center">
-<span class="block text-[28px] font-black text-green-500" id="profile-reports">0</span>
-<span class="block text-[9px] uppercase tracking-wider font-bold text-[--c2] mt-1">Reports</span>
-</div>
-</div>
-<div>
-<h4 class="text-sm font-bold mb-2 uppercase tracking-wide text-[--c3]">Achievements</h4>
-<div class="flex flex-wrap gap-2" id="profile-badges">
-<p class="text-xs text-[--c3]">Loading badges...</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="max-w-7xl mx-auto px-4 sm:px-6 mt-4 mb-0">
-<div class="flex items-center gap-3 mb-2 flex-wrap">
-<span id="user-city-greeting" class="hidden text-[10px] font-bold px-3 py-1 rounded-full border" style="color:var(--c3);border-color:var(--border);background:var(--glass)"></span>
-</div>
-<div id="insight-box" class="hidden glass rounded-2xl insight-bar p-4 sm:p-5 enter mb-4">
-<div class="flex items-start gap-4">
-<div class="text-3xl" style="animation:pulse 2s infinite">🤖</div>
-<div class="flex-1 min-w-0">
-<p class="text-[10px] font-bold uppercase tracking-widest mb-1" style="color:var(--c3)">AI Agent ·
-Personalized Insight</p>
-<p id="insight-text" class="text-sm sm:text-base font-semibold leading-relaxed typing"
-style="max-width:100%;overflow:hidden"></p>
-</div>
-</div>
-</div>
-</div>
-<section id="tab-citizen" class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-<div class="grid lg:grid-cols-5 gap-8">
-<div class="lg:col-span-3 enter" style="animation-delay:.1s">
-<div class="text-center lg:text-left mb-6">
-<h2 class="text-3xl sm:text-4xl font-black mb-2">Report a <span class="grad-text">Waste Issue</span></h2>
-<p style="color:var(--c2)" class="text-sm">AI analyzes waste, assigns severity, and routes to local
-authorities.</p>
-</div>
-<div class="glass rounded-3xl p-6 sm:p-8 space-y-5 shadow-lg">
-<div><label for="description" class="block text-xs font-bold mb-1.5 uppercase tracking-wider"
-style="color:var(--c2)" data-i18n="lbl_desc">📝 What did you see? *</label>
-<div class="flex gap-2">
-<textarea id="description" rows="3"
-oninput="document.getElementById('desc-count').textContent=this.value.length+'/1000'"
-placeholder="Be specific: type of waste, size, hazards, nearby landmarks…"
-class="w-full px-4 py-3 text-sm resize-none" required minlength="5" maxlength="1000" data-i18n-ph="ph_desc"></textarea>
-<button type="button" id="mic-btn" onclick="toggleMic()" class="mic-btn self-start"
-title="Speak your complaint">🎙️</button>
-</div>
-<p id="desc-count" class="text-right text-[10px] mt-1 font-mono uppercase tracking-widest" style="color:var(--c3)">0/1000</p>
-</div>
-<div><label class="block text-xs font-bold mb-1.5 uppercase tracking-wider" style="color:var(--c2)">📷 Photo
-Evidence <span class="text-green-500 font-normal normal-case">(+5 pts · AI checks
-authenticity)</span></label>
-<div id="upload-zone" class="upload-zone text-center"
-onclick="document.getElementById('img-input').click()"
-ondragover="event.preventDefault();this.classList.add('drag')"
-ondragleave="this.classList.remove('drag')"
-ondrop="event.preventDefault();this.classList.remove('drag');handleFile(event.dataTransfer.files[0])">
-<div id="upload-ph">
-<div class="text-4xl mb-2 opacity-40">📸</div>
-<p class="text-sm font-semibold" style="color:var(--c2)">Click to upload or drag & drop</p>
-<p class="text-xs mt-1" style="color:var(--c3)">JPG, PNG, WEBP · Max 18 MB</p>
-<button type="button" onclick="event.stopPropagation();document.getElementById('cam-input').click()"
-class="mt-3 text-xs btn-outline px-3 py-1.5 rounded-lg">📸 Use Camera</button>
-</div>
-<div id="img-pw" style="display:none" class="relative inline-block"><img id="img-prev" src=""
-class="max-h-36 rounded-xl object-cover shadow-md border-2 border-orange-200" alt="Preview" />
-<button type="button" onclick="event.stopPropagation();clearImg()"
-class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs font-bold border-2 border-white shadow">✕</button>
-</div>
-</div>
-<input type="file" id="img-input" accept="image/*" class="hidden" onchange="handleFile(this.files[0])" />
-<input type="file" id="cam-input" accept="image/*" capture="environment" class="hidden"
-onchange="handleFile(this.files[0])" />
-</div>
-<div><label class="block text-xs font-bold mb-1.5 uppercase tracking-wider" style="color:var(--c2)">📍
-Location *</label>
-<div class="flex items-center gap-3 flex-wrap"><button type="button" id="geo-btn" onclick="fetchLoc()"
-class="btn-outline px-4 py-2.5 rounded-xl text-sm flex items-center gap-2">📍 Get My
-Location</button><span id="coords" class="text-xs" style="color:var(--c3)"></span></div>
-<input type="hidden" id="lat" /><input type="hidden" id="lng" />
-</div>
-<div id="submit-error" class="hidden text-red-500 bg-red-500/10 border border-red-500/30 p-3 rounded-xl mb-4 text-sm leading-tight font-semibold flex items-start gap-2"></div>
-<button type="button" id="submit-btn" onclick="submitReport()"
-class="w-full btn-primary py-4 rounded-2xl text-base tracking-wide shadow-lg flex items-center justify-center gap-2 ripple-btn">🚀
-Analyze & Earn Points</button>
-<div id="result-card" class="hidden enter">
-<div class="glass-card rounded-2xl p-5 mt-2 border-t-4 border-t-orange-400 relative overflow-hidden">
-<div class="absolute -right-8 -top-8 w-32 h-32 bg-orange-200/15 rounded-full blur-2xl"></div>
-<div class="absolute -left-8 -bottom-8 w-32 h-32 bg-green-200/15 rounded-full blur-2xl"></div>
-<div class="relative z-10">
-<div class="flex justify-between items-start mb-4">
-<div>
-<p class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--c3)">AI Analysis
-Complete</p>
-<p class="text-2xl font-black mt-1">+<span id="res-pts" class="grad-text">0</span> Points!</p>
-</div>
-<div id="res-auth-box" style="display:none" class="text-right"><span id="res-auth-badge"
-class="text-[10px] font-bold px-2 py-1 rounded-md inline-block"></span>
-<p id="res-auth-note" class="text-[9px] mt-1 max-w-[140px] leading-tight" style="color:var(--c3)">
-</p>
-</div>
-</div>
-<div class="grid grid-cols-2 gap-3 mb-3">
-<div class="rounded-xl p-3 border" style="background:var(--glass);border-color:var(--border)">
-<p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">Category</p>
-<p id="res-cat" class="font-bold text-sm mt-1"></p>
-</div>
-<div class="rounded-xl p-3 border" style="background:var(--glass);border-color:var(--border)">
-<p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">Severity</p>
-<p id="res-sev" class="font-bold text-sm mt-1"></p>
-</div>
-</div>
-<div class="rounded-xl p-3 border mb-3"
-style="background:rgba(249,115,22,.05);border-color:rgba(249,115,22,.12)">
-<p class="text-[9px] text-orange-500 font-bold uppercase tracking-widest mb-1">📋 Action Plan</p>
-<p id="res-act" class="text-sm font-medium leading-relaxed"></p>
-</div>
-<div id="res-env-row" class="hidden grid grid-cols-2 gap-2 mb-3">
-<div id="res-aqi-card" class="rounded-xl p-2.5 border text-center" style="border-color:var(--border)">
-<p class="text-[8px] font-bold uppercase tracking-widest" style="color:var(--c3)">Air Quality</p>
-<p id="res-aqi-val" class="text-lg font-black mt-0.5">—</p>
-<p id="res-aqi-level" class="text-[9px] font-bold"></p>
-</div>
-<div id="res-wx-card" class="rounded-xl p-2.5 border text-center" style="border-color:var(--border)">
-<p class="text-[8px] font-bold uppercase tracking-widest" style="color:var(--c3)">Weather</p>
-<p id="res-wx-icon" class="text-lg mt-0.5">—</p>
-<p id="res-wx-desc" class="text-[9px] font-bold"></p>
-</div>
-</div>
-<div id="res-wx-risk" class="hidden rounded-lg p-2 mb-3 text-[10px] font-bold text-center" style="background:rgba(239,68,68,.08);color:#ef4444;border:1px solid rgba(239,68,68,.2)"></div>
-<div id="res-disposal" class="hidden rounded-xl p-3 border mb-3" style="background:rgba(34,197,94,.05);border-color:rgba(34,197,94,.15)">
-<p class="text-[9px] text-green-500 font-bold uppercase tracking-widest mb-1">♻️ Disposal Guide</p>
-<p id="res-disposal-text" class="text-xs font-medium leading-relaxed" style="color:var(--c2)"></p>
-</div>
-<div class="flex gap-2"><a id="res-maps" href="#" target="_blank"
-class="flex-1 text-center btn-outline px-3 py-2 rounded-xl text-xs">🗺️ Google Maps</a><button
-id="res-notify" onclick="notifyResult()" class="flex-1 btn-green px-3 py-2 rounded-xl text-xs">📣
-Notify Authority</button><button id="res-share" onclick="shareWA()"
-class="flex-1 btn-wa px-3 py-2 rounded-xl text-xs">💬 WhatsApp</button></div>
-</div>
-</div>
-</div>
-<div id="rank-widget" class="hidden rank-widget mt-3">
-<p class="text-[10px] font-bold uppercase tracking-widest mb-1" style="color:var(--c3)">🏅 Your Standing
-</p>
-<p id="rank-text" class="text-sm font-bold"></p>
-</div>
-</div>
-</div>
-<div class="lg:col-span-2 space-y-5 enter" style="animation-delay:.25s">
-<div class="glass rounded-2xl p-6">
-<h3 class="text-sm font-black mb-4 flex items-center gap-2">⚡ How WasteWatch Works</h3>
-<div class="space-y-4">
-<div class="flex gap-3">
-<div class="feature-icon bg-orange-500/10"><span>📝</span></div>
-<div>
-<p class="font-bold text-sm">1. Describe the Issue</p>
-<p class="text-xs mt-0.5" style="color:var(--c3)">Type what you see — waste type, hazard level, and
-details.</p>
-</div>
-</div>
-<div class="flex gap-3">
-<div class="feature-icon bg-blue-500/10"><span>📸</span></div>
-<div>
-<p class="font-bold text-sm">2. Snap a Photo</p>
-<p class="text-xs mt-0.5" style="color:var(--c3)">AI verifies authenticity and gives +5 bonus points.
-</p>
-</div>
-</div>
-<div class="flex gap-3">
-<div class="feature-icon bg-green-500/10"><span>🤖</span></div>
-<div>
-<p class="font-bold text-sm">3. Gemini AI Analyzes</p>
-<p class="text-xs mt-0.5" style="color:var(--c3)">Classifies waste, gauges severity, creates action
-plan.</p>
-</div>
-</div>
-<div class="flex gap-3">
-<div class="feature-icon bg-purple-500/10"><span>📣</span></div>
-<div>
-<p class="font-bold text-sm">4. Authority Notified</p>
-<p class="text-xs mt-0.5" style="color:var(--c3)">Local Nagar Nigam gets a structured email alert.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="glass rounded-2xl p-6">
-<h3 class="text-sm font-black mb-3 flex items-center gap-2"><span
-class="activity-dot bg-green-500 inline-block"></span> Live Activity Feed</h3>
-<div id="activity-feed" class="space-y-3">
-<div class="text-center py-4">
-<p class="text-xs" style="color:var(--c3)">Loading recent activity…</p>
-</div>
-</div>
-</div>
-<div class="glass rounded-2xl p-6">
-<h3 class="text-sm font-black mb-3">🏅 Point System</h3>
-<div class="space-y-2 text-xs">
-<div class="flex justify-between items-center p-2.5 rounded-lg" style="background:var(--glass)"><span
-class="font-semibold">Base Report</span><span class="font-black text-orange-500">+10 pts</span></div>
-<div class="flex justify-between items-center p-2.5 rounded-lg" style="background:var(--glass)"><span
-class="font-semibold">Photo Evidence</span><span class="font-black text-green-500">+5 pts</span></div>
-<div class="flex justify-between items-center p-2.5 rounded-lg" style="background:var(--glass)"><span
-class="font-semibold">New Location Discovery</span><span class="font-black text-blue-500">+3
-pts</span></div>
-<div class="flex justify-between items-center p-2.5 rounded-lg" style="background:var(--glass)"><span
-class="font-semibold">High Severity Found</span><span class="font-black text-red-500">+2 pts</span>
-</div>
-<div class="flex justify-between items-center p-2.5 rounded-lg border border-red-200/30"
-style="background:rgba(239,68,68,.05)"><span class="font-semibold text-red-400">Fake Photo
-Penalty</span><span class="font-black text-red-500">-5 pts</span></div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="tab-leaderboard" class="max-w-5xl mx-auto px-4 sm:px-6 py-8 hidden">
-<div class="text-center mb-8 enter">
-<h2 class="text-3xl sm:text-4xl font-black mb-2">Civic <span class="grad-green"
-data-i18n="lb_th">Leaderboard</span></h2>
-<p style="color:var(--c2)" class="text-sm">Top contributors last 10 days. Report waste to climb!</p>
-</div>
-<div class="grid lg:grid-cols-3 gap-6">
-<div class="lg:col-span-2 enter" style="animation-delay:.1s">
-<div class="flex justify-center gap-1.5 mb-5 p-1 rounded-2xl max-w-sm mx-auto border"
-style="background:var(--pill-bg);border-color:var(--border)">
-<button onclick="loadLB('national')" id="lb-national" class="pill active flex-1 text-center">🇮🇳
-National</button>
-<button onclick="loadLB('state')" id="lb-state" class="pill flex-1 text-center">🏛️ State</button>
-<button onclick="loadLB('pincode')" id="lb-pincode" class="pill flex-1 text-center">📮 Pincode</button>
-</div>
-<div id="lb-filter-box" class="hidden text-center mb-4"><input type="text" id="lb-filter-val"
-placeholder="Enter state or pincode…" class="px-4 py-2.5 text-sm w-52 text-center" /><button
-onclick="doLBFilter()" class="btn-green px-4 py-2.5 rounded-xl text-sm ml-2">Search</button></div>
-<div class="lb-scroll-wrap glass rounded-3xl overflow-hidden shadow-lg"
-style="border:1px solid var(--border2)">
-<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-<table class="w-full text-left" id="lb-table" style="min-width:320px">
-<thead style="background:var(--glass);border-bottom:1px solid var(--border)">
-<tr class="text-[10px] uppercase tracking-widest font-bold" style="color:var(--c3)">
-<th class="px-4 sm:px-6 py-4 w-14 text-center">Rank</th>
-<th class="px-4 sm:px-6 py-4">Citizen</th>
-<th class="px-4 sm:px-6 py-4 text-center">Reports</th>
-<th class="px-4 sm:px-6 py-4 text-right">Score</th>
-</tr>
-</thead>
-<tbody id="lb-body">
-<tr>
-<td colspan="4" class="px-6 py-10 text-center">
-<div class="skeleton h-8 rounded-lg mb-3"></div>
-<div class="skeleton h-8 rounded-lg mb-3"></div>
-<div class="skeleton h-8 rounded-lg"></div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div id="lb-empty" class="hidden py-16 text-center">
-<div class="text-5xl mb-3 opacity-40">🏆</div>
-<p style="color:var(--c3)" class="font-semibold">No activity yet. Be the first!</p>
-</div>
-</div>
-</div>
-<div class="space-y-5 enter" style="animation-delay:.2s">
-<div class="glass rounded-2xl p-6 text-center">
-<p class="text-[10px] font-bold uppercase tracking-widest mb-2" style="color:var(--c3)">Your Rank</p>
-<p id="my-rank" class="text-5xl font-black grad-text">—</p>
-<p id="my-pts" class="text-sm font-bold mt-1" style="color:var(--c2)">0 points</p>
-</div>
-<div class="glass rounded-2xl p-6">
-<h3 class="text-sm font-black mb-3">🎯 Ranking Rules</h3>
-<ul class="text-xs space-y-2" style="color:var(--c2)">
-<li class="flex gap-2"><span>🔄</span> Resets every 10 days</li>
-<li class="flex gap-2"><span>📍</span> 200m anti-gaming radius</li>
-<li class="flex gap-2"><span>🔍</span> AI verifies photo authenticity</li>
-<li class="flex gap-2"><span>🌐</span> Filter by State or Pincode</li>
-</ul>
-</div>
-<div class="glass rounded-2xl p-6">
-<h3 class="text-sm font-black mb-3">🗺️ Hotspot Zones</h3>
-<div id="hotspot-list" class="space-y-2 text-xs" style="color:var(--c2)">
-<p>Loading hotspots…</p>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="tab-admin" class="max-w-7xl mx-auto px-4 sm:px-6 py-8 hidden">
-<div class="flex items-center justify-between mb-6 flex-wrap gap-3 enter">
-<div>
-<h2 class="text-2xl sm:text-3xl font-black">Municipal <span class="grad-text"
-data-i18n="dash_th">Dashboard</span></h2>
-<p class="text-xs" style="color:var(--c2)">Real-time waste intelligence & hotspot analytics</p>
-</div>
-<button onclick="loadDash()" class="btn-outline px-4 py-2.5 rounded-xl text-sm flex items-center gap-2">🔄
-Refresh</button>
-</div>
-<div id="ai-narrative-box" class="hidden glass rounded-2xl p-4 mb-6 border-l-4 border-orange-500 flex items-center gap-4 enter">
-<div class="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-xl shrink-0">🧠</div>
-<div>
-<p class="text-[9px] font-black uppercase tracking-widest text-orange-400">Civic Intelligence Report</p>
-<p id="ai-narrative-text" class="text-sm font-bold leading-relaxed">Analyzing city trends...</p>
-</div>
-</div>
-<div class="glass rounded-2xl p-4 mb-6 enter" style="animation-delay:.05s;border:1px solid rgba(249,115,22,.15)">
-<div class="flex items-center gap-2 mb-3">
-<span class="text-lg">🇮🇳</span>
-<p class="text-[10px] font-black uppercase tracking-widest text-orange-400">Swachh Bharat Mission — National Progress</p>
-<a href="https://swachhbharaturban.gov.in" target="_blank" class="ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full border" style="color:var(--c3);border-color:var(--border)">Source: MoHUA ↗</a>
-</div>
-<div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-<div class="text-center p-2 rounded-xl" style="background:var(--glass)">
-<p class="text-xl font-black text-green-500">98%</p>
-<p class="text-[9px] font-bold uppercase tracking-wide mt-0.5" style="color:var(--c3)">ODF Coverage</p>
-</div>
-<div class="text-center p-2 rounded-xl" style="background:var(--glass)">
-<p class="text-xl font-black text-orange-500">1.5L</p>
-<p class="text-[9px] font-bold uppercase tracking-wide mt-0.5" style="color:var(--c3)">Tonnes/Day Waste</p>
-</div>
-<div class="text-center p-2 rounded-xl" style="background:var(--glass)">
-<p class="text-xl font-black text-blue-400">4,800+</p>
-<p class="text-[9px] font-bold uppercase tracking-wide mt-0.5" style="color:var(--c3)">Urban Local Bodies</p>
-</div>
-<div class="text-center p-2 rounded-xl" style="background:var(--glass)">
-<p class="text-xl font-black" style="color:var(--accent)">77%</p>
-<p class="text-[9px] font-bold uppercase tracking-wide mt-0.5" style="color:var(--c3)">Waste Processed</p>
-</div>
-</div>
-</div>
-<div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6" id="stat-grid">
-<div class="glass-card rounded-2xl p-4 text-center stagger"
-style="animation-delay:.05s;border-bottom:2px solid #f97316">
-<div class="quick-stat">
-<p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">📊 Total Reports</p>
-<p id="st-total" class="num">0</p>
-</div>
-</div>
-<div class="glass-card rounded-2xl p-4 text-center stagger"
-style="animation-delay:.12s;border-bottom:2px solid #f97316">
-<div class="quick-stat">
-<p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">📂 Open Cases</p>
-<p id="st-open" class="num text-orange-500">0</p>
-</div>
-</div>
-<div class="glass-card rounded-2xl p-4 text-center stagger"
-style="animation-delay:.19s;border-bottom:2px solid #ef4444">
-<div class="quick-stat">
-<p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">🔴 High Severity</p>
-<p id="st-high" class="num text-red-500">0</p>
-</div>
-</div>
-<div class="glass-card rounded-2xl p-4 text-center stagger"
-style="animation-delay:.26s;border-bottom:2px solid #22c55e">
-<div class="quick-stat">
-<p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">📷 With Photo</p>
-<p id="st-photo" class="num text-green-500">0</p>
-</div>
-</div>
-<div class="glass-card rounded-2xl p-4 text-center col-span-2 lg:col-span-1 border-t-2 border-t-red-400 stagger"
-style="animation-delay:.33s;border-bottom:2px solid #ef4444">
-<div class="quick-stat">
-<p class="text-[9px] text-red-400 font-bold uppercase tracking-widest">⚠️ Worst Area</p>
-<p id="st-worst" class="num text-red-500 text-lg truncate">N/A</p>
-</div>
-</div>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-<div class="glass-card rounded-2xl p-5 enter" style="animation-delay:.38s">
-<h4 class="text-xs font-bold uppercase tracking-widest mb-3" style="color:var(--c3)">📊 Severity Distribution
-</h4>
-<div class="flex items-center justify-center"><svg id="sev-pie" viewBox="0 0 120 120" width="120"
-height="120"></svg></div>
-<div id="sev-legend" class="flex justify-center gap-4 mt-3 text-[10px] font-bold"></div>
-</div>
-<div class="glass-card rounded-2xl p-5 enter" style="animation-delay:.42s">
-<h4 class="text-xs font-bold uppercase tracking-widest mb-3" style="color:var(--c3)">📈 Reports This Week</h4>
-<svg id="week-bars" viewBox="0 0 280 100" width="100%" height="100" style="max-height:100px"></svg>
-</div>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-<div class="glass-card rounded-2xl p-5 enter" style="animation-delay:.45s">
-<h4 class="text-xs font-bold uppercase tracking-widest mb-3 text-orange-400">🔮 7-Day Trend Forecast</h4>
-<p id="trend-text" class="text-xs font-medium mb-4 leading-relaxed"></p>
-<div id="forecast-bars" class="flex items-end justify-between h-20 gap-1 mt-2">
-</div>
-</div>
-<div class="glass-card rounded-2xl p-5 enter" style="animation-delay:.48s">
-<h4 class="text-xs font-bold uppercase tracking-widest mb-3 text-green-400">🌿 Ecosystem Recovery Focus</h4>
-<div class="space-y-3">
-<div>
-<p class="text-[9px] uppercase tracking-widest font-bold mb-1" style="color:var(--c3)">High-Risk Categories</p>
-<div id="trend-cats" class="flex flex-wrap gap-2"></div>
-</div>
-<div>
-<p class="text-[9px] uppercase tracking-widest font-bold mb-1" style="color:var(--c3)">LLM Recommendation</p>
-<p id="trend-rec" class="text-[11px] italic leading-tight" style="color:var(--c2)"></p>
-</div>
-</div>
-</div>
-</div>
-<div class="glass-card rounded-3xl p-4 mb-6 shadow-lg enter" style="animation-delay:.15s">
-<div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 px-1 gap-2">
-<h3 class="font-bold text-sm flex items-center gap-2">📍 Incident Heatmap</h3>
-<div class="flex gap-3 items-center text-[10px] font-bold flex-wrap" style="color:var(--c3)">
-<button id="map-mode-btn" onclick="toggleMapMode()"
-class="btn-outline px-2.5 py-1 rounded-lg text-[10px]">🛰️ Satellite</button>
-<span class="flex items-center gap-1"><span
-class="w-3 h-3 rounded-full bg-red-500 inline-block gl-h"></span> High</span>
-<span class="flex items-center gap-1"><span
-class="w-3 h-3 rounded-full bg-yellow-400 inline-block gl-m"></span> Med</span>
-<span class="flex items-center gap-1"><span
-class="w-3 h-3 rounded-full bg-green-400 inline-block gl-l"></span> Low</span>
-</div>
-</div>
-<div id="map"></div>
-</div>
-<div class="glass-card rounded-3xl overflow-hidden shadow-lg enter" style="animation-delay:.2s">
-<div class="flex items-center gap-4 px-5 py-4 border-b"
-style="background:var(--glass);border-color:var(--border)">
-<h3 class="font-bold flex-1">📋 Incident Log</h3>
-<input id="tbl-search" type="search" placeholder="Search reports…" oninput="filterTbl()"
-class="px-3 py-2 text-xs w-56" />
-</div>
-<div class="overflow-x-auto desk-table">
-<table class="w-full text-sm text-left">
-<thead style="background:var(--glass);border-bottom:1px solid var(--border)">
-<tr class="text-[10px] uppercase tracking-widest font-bold" style="color:var(--c3)">
-<th class="px-4 py-3">Photo</th>
-<th class="px-4 py-3">ID</th>
-<th class="px-4 py-3">Description</th>
-<th class="px-4 py-3">Cat/Sev</th>
-<th class="px-4 py-3">Status</th>
-<th class="px-4 py-3">Location</th>
-<th class="px-4 py-3">Auth</th>
-<th class="px-4 py-3 text-right">Actions</th>
-</tr>
-</thead>
-<tbody id="rpt-body" class="divide-y" style="border-color:var(--border)"></tbody>
-</table>
-</div>
-<div id="mob-cards-wrap" class="mob-cards"></div>
-<p id="no-rpt" class="hidden py-12 text-center font-medium" style="color:var(--c3)">No reports found.</p>
-</div>
-</section>
-<div id="lightbox" onclick="this.classList.remove('active')"><img id="lb-img" src="" alt="Full" /></div>
-<button id="va-fab" onclick="toggleVA()" title="AI Voice Assistant">
-<img src="/logo_circular.webp" alt="VA" />
-</button>
-<div id="va-panel">
-<div class="flex items-center justify-between mb-1">
-<div>
-<p class="text-xs font-black uppercase tracking-widest" style="color:var(--c3)" data-i18n="va_title">AI Voice Guide</p>
-<p class="text-[10px] mt-0.5" style="color:var(--c3)" data-i18n="va_sub">Type or speak in Hindi / English</p>
-</div>
-<div style="display:flex;align-items:center;gap:8px">
-<button id="va-voice-mode-btn" onclick="toggleVoiceMode()"
-title="Toggle Voice Mode (auto-speak replies)"
-style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:4px 8px;border-radius:20px;border:1px solid var(--border2);background:var(--glass);color:var(--c3);cursor:pointer;white-space:nowrap;transition:all .2s">
-🔈 Voice: OFF
-</button>
-<button onclick="toggleVA()" style="background:none;border:none;cursor:pointer;color:var(--c3);font-size:18px;line-height:1">✕</button>
-</div>
-</div>
-<div id="va-msgs"></div>
-<div id="va-wave" class="wave-bars hidden justify-center py-1">
-<span></span><span></span><span></span><span></span><span></span></div>
-<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2)">
-<div style="display:flex;align-items:center;gap:6px">
-<button id="va-mic" onclick="vaSpeak()" data-i18n="va_btn"
-style="display:inline-flex;align-items:center;justify-content:center;gap:4px;height:36px;padding:0 12px;border-radius:12px;font-size:11px;font-weight:800;white-space:nowrap;flex-shrink:0;background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;border:none;cursor:pointer">
-🎙️ Speak
-</button>
-<input type="text" id="va-txt-input" placeholder="Type a message…"
-style="flex:1;height:36px;padding:0 12px;border-radius:12px;border:1px solid var(--border2);background:var(--input-bg);color:var(--c1);font-size:12px;outline:none"
-onkeydown="if(event.key==='Enter')vaSendText()">
-<button onclick="vaSendText()"
-style="display:inline-flex;align-items:center;justify-content:center;height:36px;width:36px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;border:none;cursor:pointer;font-size:16px">
-➤
-</button>
-<button onclick="vaStop()" title="Pause speech"
-style="display:inline-flex;align-items:center;justify-content:center;height:36px;width:36px;border-radius:12px;flex-shrink:0;border:1px solid var(--border2);background:var(--glass);color:var(--c2);cursor:pointer;font-size:16px">
-⏸
-</button>
-</div>
-<div style="display:flex;justify-content:flex-end">
-<button onclick="vaClear()"
-style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:10px;border:1px solid var(--border2);background:var(--glass);color:var(--c3);font-size:11px;cursor:pointer">
-🗑️ Clear
-</button>
-</div>
-</div>
-</div>
-<footer class="text-center py-8 mt-8">
-<div class="inline-flex items-center gap-2 glass px-5 py-2.5 rounded-full text-xs font-semibold shadow-sm"
-style="color:var(--c2)"><img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg"
-class="h-3.5 w-auto rounded-sm drop-shadow-sm mr-1" alt="IN" /> WasteWatch · Powered by <span
-class="font-bold text-orange-500">Google Gemini &amp; Groq AI</span></div>
-</footer>
-</div>
-<script>
-let map, mLayer, hLayer, allRpts = [], allHot = [], selFile = null, lastRes = null, curLB = 'national', baseTile = null, mapMode = 'street', authMode = 'login';
+  </style>
+ </head>
+ <body>
+  <div class="hidden fixed top-0 left-0 w-full bg-gradient-to-r from-orange-600 to-amber-500 text-white text-center py-3 px-4 text-sm font-bold z-[100] shadow-xl flex items-center justify-between border-b border-orange-400" id="pwa-install-banner">
+   <div class="flex items-center gap-2">
+    <span>
+     📱 Install WasteWatch App
+    </span>
+   </div>
+   <div class="flex items-center gap-3">
+    <button class="bg-white text-orange-600 px-4 py-1.5 rounded-lg shadow-md text-xs uppercase tracking-wide hover:bg-orange-50 active:scale-95 transition" id="pwa-install-btn">
+     Install
+    </button>
+    <button class="text-white/80 hover:text-white text-lg leading-none cursor-pointer" onclick="document.getElementById('pwa-install-banner').classList.add('hidden')">
+     ✕
+    </button>
+   </div>
+  </div>
+  <div class="bg-orbs">
+   <div class="orb orb1">
+   </div>
+   <div class="orb orb2">
+   </div>
+   <div class="orb orb3">
+   </div>
+  </div>
+  <div aria-live="polite" id="toast-box">
+  </div>
+  <div id="auth-overlay">
+   <div class="glass rounded-3xl p-8 sm:p-10 w-full max-w-md mx-4 enter" style="border:1px solid rgba(255,255,255,.1)">
+    <div class="text-center mb-6">
+     <div class="w-20 h-20 logo-container logo-border-glow mb-4 mx-auto">
+      <img alt="Logo" class="logo-img" src="/logo.png"/>
+     </div>
+     <h1 class="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-orange-400 via-white to-green-400 flex items-center justify-center gap-2">
+      WasteWatch
+      <img alt="IN" class="h-5 w-auto rounded-sm drop-shadow-sm ml-1" src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg"/>
+     </h1>
+     <p class="text-sm mt-2" style="color:var(--c3)">
+      AI-Powered Civic Intelligence Platform
+     </p>
+    </div>
+    <form class="space-y-3" id="auth-form" onsubmit="event.preventDefault(); doAuth();">
+     <div class="space-y-1">
+      <input class="w-full px-4 py-3.5 text-sm" id="auth-phone" placeholder="📱 10-digit Phone Number" required="" type="tel"/>
+     </div>
+     <div class="hidden space-y-3" id="reg-fields">
+      <input class="w-full px-4 py-3.5 text-sm" id="auth-name" placeholder="👤 Full Name" type="text"/>
+      <div class="flex gap-2">
+       <input class="flex-1 px-4 py-3.5 text-sm" id="auth-otp" maxlength="6" placeholder="🔢 6-digit OTP" type="text"/>
+       <button class="btn-outline px-3 py-1.5 rounded-xl text-[10px] font-bold" id="otp-btn" onclick="sendAuthOTP()" type="button">
+        Get OTP
+       </button>
+      </div>
+      <p class="hidden text-[10px] font-bold text-orange-400 mt-1" id="dev-otp-msg">
+       ⚠️ Showing OTP on screen because SMS delivery is in development phase.
+      </p>
+     </div>
+     <input class="w-full px-4 py-3.5 text-sm" id="auth-pwd" placeholder="🔒 Password" required="" type="password"/>
+     <p class="text-xs font-bold text-red-500 hidden bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-2 text-center" id="auth-err">
+     </p>
+     <button class="w-full btn-primary py-4 rounded-2xl text-base tracking-wide shadow-lg" id="auth-btn" type="submit">
+      🚀 Sign In
+     </button>
+     <p class="text-center">
+      <button class="text-xs font-semibold hover:text-orange-400 transition" id="auth-switch" onclick="toggleAuthMode()" style="color:var(--c3);background:none;border:none;cursor:pointer" type="button">
+       Need an account? Register here →
+      </button>
+     </p>
+    </form>
+    <div class="mt-4 pt-4 border-t" style="border-color:var(--border)">
+     <button class="w-full py-3.5 rounded-2xl text-sm font-bold tracking-wide shadow-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]" id="demo-btn" onclick="demoLogin()" style="background:linear-gradient(135deg, rgba(249,115,22,.15), rgba(34,197,94,.15)); border:1.5px solid rgba(249,115,22,.3); color:var(--c1); backdrop-filter:blur(8px)" type="button">
+      🎮 Try Demo — Instant Access
+     </button>
+     <p class="text-center mt-2 text-[10px] font-medium" style="color:var(--c3)">
+      No registration needed · Explore all features instantly
+     </p>
+    </div>
+    <div class="mt-4 pt-4 border-t text-center" style="border-color:var(--border)">
+     <div class="flex justify-center gap-6 text-xs font-bold" style="color:var(--c3)">
+      <span>
+       🤖 Gemini AI
+      </span>
+      <span>
+       📍 GPS Tracking
+      </span>
+      <span>
+       🏆 Gamified
+      </span>
+     </div>
+    </div>
+   </div>
+  </div>
+  <div class="hidden" id="app-wrap">
+   <nav class="sticky top-0 z-50">
+    <div class="tri-bar">
+    </div>
+    <div class="glass-solid transition-all px-3 sm:px-8 py-1.5 sm:py-3.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-6" style="border-bottom:1px solid var(--border)">
+     <div class="max-w-7xl sm:max-w-none mx-auto sm:mx-0 w-full sm:w-auto flex justify-between items-center sm:gap-4 sm:order-1">
+      <div class="flex items-center gap-2 sm:gap-3">
+       <div class="w-9 h-9 sm:w-12 sm:h-12 logo-container logo-border-glow shrink-0">
+        <img alt="Logo" class="logo-img" src="/logo.png"/>
+       </div>
+       <div>
+        <h1 class="text-base sm:text-2xl font-black leading-none flex items-center gap-1.5 text-nowrap">
+         WasteWatch
+         <img alt="IN" class="h-3 sm:h-4.5 rounded-[1.5px] sm:rounded-sm pt-[2px]" src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg"/>
+        </h1>
+        <p class="text-[7px] sm:text-[10px] uppercase tracking-[.25em] font-bold mt-0.5" style="color:var(--c3)">
+         Swachh Bharat AI
+        </p>
+       </div>
+      </div>
+      <div class="flex flex-col items-center shrink-0 ml-4 sm:hidden cursor-pointer" onclick="openProfile()">
+       <div class="w-5 h-5 rounded-full bg-gradient-to-br from-orange-400 to-green-400 flex items-center justify-center text-[10px] shadow border border-white/30 mb-0.5 text-white overflow-hidden relative" id="header-avatar-m">
+        👤
+       </div>
+       <span class="text-[7px] font-bold text-center whitespace-nowrap leading-tight" id="user-name-display-mobile" style="color:var(--c1)">
+       </span>
+      </div>
+     </div>
+     <div class="max-w-7xl sm:max-w-none mx-auto sm:mx-0 w-full sm:w-auto flex justify-between items-center gap-2 mt-0 sm:order-2">
+      <div class="shrink-0">
+       <span class="inline-flex items-center gap-1 sm:gap-2 text-[8px] sm:text-[12px] font-bold px-2 py-0.5 sm:py-2 rounded-full border shadow-sm" style="color:var(--accent);background:rgba(249,115,22,0.1);border-color:var(--accent);backdrop-filter:blur(8px)">
+        🤖
+Google Gemini &amp; Groq
+       </span>
+      </div>
+      <div class="flex items-center gap-1 sm:gap-3 shrink-0">
+       <button class="flex items-center justify-center h-5 w-6 sm:h-9 sm:w-10 rounded-md sm:rounded-xl border shadow-sm text-[10px] sm:text-base" id="theme-btn" onclick="toggleTheme()" style="border-color:var(--border2);background:var(--pill-bg)">
+        🌙
+       </button>
+       <button class="flex items-center justify-center h-5 w-6 sm:h-9 sm:w-10 rounded-md sm:rounded-xl border shadow-sm text-[8px] sm:text-[11px] font-bold" id="lang-toggle" onclick="toggleLang()" style="border-color:var(--border2);background:var(--pill-bg);color:var(--c1)">
+        HI
+       </button>
+       <button class="flex items-center justify-center text-[8px] sm:text-[11px] font-bold h-5 sm:h-9 px-2 sm:px-4 rounded-md sm:rounded-xl border shadow-sm" onclick="logout()" style="color:var(--c2); border-color:var(--border2);background:var(--pill-bg)">
+        Logout
+       </button>
+       <div class="hidden sm:flex flex-col items-center shrink-0 ml-2 cursor-pointer" onclick="openProfile()">
+        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-orange-400 to-green-400 flex items-center justify-center text-sm shadow border border-white/30 mb-0.5 text-white overflow-hidden relative" id="header-avatar-d">
+         👤
+        </div>
+        <span class="text-[10px] font-bold text-center whitespace-nowrap leading-tight" id="user-name-display-desktop" style="color:var(--c1)">
+        </span>
+       </div>
+      </div>
+     </div>
+     <div class="max-w-7xl mx-auto w-full mt-1.5 sm:hidden">
+      <div class="flex gap-0.5 rounded-[8px] p-0 w-full justify-between items-center shadow-sm border" id="nav-pills-mobile" style="background:var(--pill-bg);border-color:var(--border)">
+       <button class="nav-pill-citizen pill-m active flex-1 flex flex-col justify-center items-center py-0.5 px-0 gap-0 text-[7px] ripple-btn focus:outline-none" onclick="showTab('citizen')">
+        <span class="text-xs opacity-90 block leading-none">
+         🗳️
+        </span>
+        <span class="block font-black tracking-wide uppercase" data-i18n="nav_report">
+         Report
+        </span>
+       </button>
+       <button class="nav-pill-leaderboard pill-m flex-1 flex flex-col justify-center items-center py-0.5 px-0 gap-0 text-[7px] ripple-btn focus:outline-none" onclick="showTab('leaderboard')">
+        <span class="text-xs opacity-90 block leading-none">
+         🏆
+        </span>
+        <span class="block font-black tracking-wide uppercase" data-i18n="nav_lb">
+         Leaderboard
+        </span>
+       </button>
+       <button class="nav-pill-admin pill-m flex-1 flex flex-col justify-center items-center py-0.5 px-0 gap-0 text-[7px] ripple-btn focus:outline-none" onclick="showTab('admin')">
+        <span class="text-xs opacity-90 block leading-none">
+         📊
+        </span>
+        <span class="block font-black tracking-wide uppercase" data-i18n="nav_dash">
+         Dashboard
+        </span>
+       </button>
+      </div>
+     </div>
+    </div>
+   </nav>
+   <div class="max-w-7xl mx-auto px-4 sm:px-6 mt-6 hidden sm:block">
+    <div class="flex gap-2 rounded-2xl p-1.5 w-full justify-center items-center shadow-xl border glass" id="nav-pills-desktop" style="border-color:var(--border);max-width:max-content;margin-left:auto;margin-right:auto">
+     <button class="nav-pill-citizen pill active flex items-center py-2 px-6 gap-2 text-sm font-black tracking-wider uppercase ripple-btn focus:outline-none" onclick="showTab('citizen')">
+      🗳️
+      <span data-i18n="nav_report">
+       Report
+      </span>
+     </button>
+     <button class="nav-pill-leaderboard pill flex items-center py-2 px-6 gap-2 text-sm font-black tracking-wider uppercase ripple-btn focus:outline-none" onclick="showTab('leaderboard')">
+      🏆
+      <span data-i18n="nav_lb">
+       Leaderboard
+      </span>
+     </button>
+     <button class="nav-pill-admin pill flex items-center py-2 px-6 gap-2 text-sm font-black tracking-wider uppercase ripple-btn focus:outline-none" onclick="showTab('admin')">
+      📊
+      <span data-i18n="nav_dash">
+       Dashboard
+      </span>
+     </button>
+    </div>
+   </div>
+   <div class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/50 backdrop-blur-sm px-4" id="profile-modal">
+    <div class="w-full max-w-md bg-[--bg] border border-[--border2] rounded-3xl overflow-hidden shadow-[--shadow-hover] flex flex-col max-h-[90vh]">
+     <div class="flex justify-between items-center p-5 border-b border-[--border]">
+      <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-green-500">
+       Your Profile
+      </h2>
+      <button class="text-2xl text-[--c2] hover:text-red-500" onclick="closeProfile()">
+       ×
+      </button>
+     </div>
+     <div class="p-6 overflow-y-auto hide-scroll flex-1 text-[--c1] space-y-6">
+      <div class="flex items-center gap-4">
+       <div class="relative group">
+        <div class="w-20 h-20 rounded-full overflow-hidden bg-gradient-to-br from-orange-400 to-green-500 border-[3px] border-[--glass2] shadow-lg flex items-center justify-center text-3xl" id="profile-avatar">
+         👤
+        </div>
+        <label class="absolute bottom-0 right-0 w-7 h-7 bg-[--accent] rounded-full flex justify-center items-center cursor-pointer shadow-md text-white text-[10px]">
+         📷
+         <input accept="image/*" class="hidden" onchange="uploadAvatar(this)" type="file"/>
+        </label>
+       </div>
+       <div class="flex-1">
+        <div class="flex items-center gap-2">
+         <h3 class="text-xl font-bold m-0 p-0" id="profile-name">
+         </h3>
+         <button class="text-[10px] bg-[--glass] px-2 py-0.5 rounded text-[--c2] border border-[--border]" onclick="editProfileName()">
+          ✎
+         </button>
+        </div>
+        <p class="text-xs font-mono text-[--c3] mt-1" id="profile-phone">
+        </p>
+        <p class="text-[10px] text-[--c3] mt-1">
+         Joined:
+         <span id="profile-joined">
+         </span>
+        </p>
+       </div>
+      </div>
+      <div class="grid grid-cols-3 gap-3">
+       <div class="p-3 bg-[--glass2] rounded-2xl border border-[--border] text-center">
+        <span class="block text-[28px] font-black grad-text" id="profile-points">
+         0
+        </span>
+        <span class="block text-[9px] uppercase tracking-wider font-bold text-[--c2] mt-1">
+         Points
+        </span>
+       </div>
+       <div class="p-3 bg-[--glass2] rounded-2xl border border-[--border] text-center">
+        <span class="block text-[28px] font-black text-orange-500" id="profile-rank">
+         -
+        </span>
+        <span class="block text-[9px] uppercase tracking-wider font-bold text-[--c2] mt-1">
+         Rank
+        </span>
+       </div>
+       <div class="p-3 bg-[--glass2] rounded-2xl border border-[--border] text-center">
+        <span class="block text-[28px] font-black text-green-500" id="profile-reports">
+         0
+        </span>
+        <span class="block text-[9px] uppercase tracking-wider font-bold text-[--c2] mt-1">
+         Reports
+        </span>
+       </div>
+      </div>
+      <div>
+       <h4 class="text-sm font-bold mb-2 uppercase tracking-wide text-[--c3]">
+        Achievements
+       </h4>
+       <div class="flex flex-wrap gap-2" id="profile-badges">
+        <p class="text-xs text-[--c3]">
+         Loading badges...
+        </p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+   <div class="max-w-7xl mx-auto px-4 sm:px-6 mt-4 mb-0">
+    <div class="flex items-center gap-3 mb-2 flex-wrap">
+     <span class="hidden text-[10px] font-bold px-3 py-1 rounded-full border" id="user-city-greeting" style="color:var(--c3);border-color:var(--border);background:var(--glass)">
+     </span>
+    </div>
+    <div class="hidden glass rounded-2xl insight-bar p-4 sm:p-5 enter mb-4" id="insight-box">
+     <div class="flex items-start gap-4">
+      <div class="text-3xl" style="animation:pulse 2s infinite">
+       🤖
+      </div>
+      <div class="flex-1 min-w-0">
+       <p class="text-[10px] font-bold uppercase tracking-widest mb-1" style="color:var(--c3)">
+        AI Agent ·
+Personalized Insight
+       </p>
+       <p class="text-sm sm:text-base font-semibold leading-relaxed typing" id="insight-text" style="max-width:100%;overflow:hidden">
+       </p>
+      </div>
+     </div>
+    </div>
+   </div>
+   <section class="max-w-7xl mx-auto px-4 sm:px-6 py-8" id="tab-citizen">
+    <div class="grid lg:grid-cols-5 gap-8">
+     <div class="lg:col-span-3 enter" style="animation-delay:.1s">
+      <div class="text-center lg:text-left mb-6">
+       <h2 class="text-3xl sm:text-4xl font-black mb-2">
+        Report a
+        <span class="grad-text">
+         Waste Issue
+        </span>
+       </h2>
+       <p class="text-sm" style="color:var(--c2)">
+        AI analyzes waste, assigns severity, and routes to local
+authorities.
+       </p>
+      </div>
+      <div class="glass rounded-3xl p-6 sm:p-8 space-y-5 shadow-lg">
+       <div>
+        <label class="block text-xs font-bold mb-1.5 uppercase tracking-wider" data-i18n="lbl_desc" for="description" style="color:var(--c2)">
+         📝 What did you see? *
+        </label>
+        <div class="flex gap-2">
+         <textarea class="w-full px-4 py-3 text-sm resize-none" data-i18n-ph="ph_desc" id="description" maxlength="1000" minlength="5" oninput="document.getElementById('desc-count').textContent=this.value.length+'/1000'" placeholder="Be specific: type of waste, size, hazards, nearby landmarks…" required="" rows="3"></textarea>
+         <button class="mic-btn self-start" id="mic-btn" onclick="toggleMic()" title="Speak your complaint" type="button">
+          🎙️
+         </button>
+        </div>
+        <p class="text-right text-[10px] mt-1 font-mono uppercase tracking-widest" id="desc-count" style="color:var(--c3)">
+         0/1000
+        </p>
+       </div>
+       <div>
+        <label class="block text-xs font-bold mb-1.5 uppercase tracking-wider" style="color:var(--c2)">
+         📷 Photo
+Evidence
+         <span class="text-green-500 font-normal normal-case">
+          (+5 pts · AI checks
+authenticity)
+         </span>
+        </label>
+        <div class="upload-zone text-center" id="upload-zone" onclick="document.getElementById('img-input').click()" ondragleave="this.classList.remove('drag')" ondragover="event.preventDefault();this.classList.add('drag')" ondrop="event.preventDefault();this.classList.remove('drag');handleFile(event.dataTransfer.files[0])">
+         <div id="upload-ph">
+          <div class="text-4xl mb-2 opacity-40">
+           📸
+          </div>
+          <p class="text-sm font-semibold" style="color:var(--c2)">
+           Click to upload or drag &amp; drop
+          </p>
+          <p class="text-xs mt-1" style="color:var(--c3)">
+           JPG, PNG, WEBP · Max 18 MB
+          </p>
+          <button class="mt-3 text-xs btn-outline px-3 py-1.5 rounded-lg" onclick="event.stopPropagation();document.getElementById('cam-input').click()" type="button">
+           📸 Use Camera
+          </button>
+         </div>
+         <div class="relative inline-block" id="img-pw" style="display:none">
+          <img alt="Preview" class="max-h-36 rounded-xl object-cover shadow-md border-2 border-orange-200" id="img-prev" src=""/>
+          <button class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs font-bold border-2 border-white shadow" onclick="event.stopPropagation();clearImg()" type="button">
+           ✕
+          </button>
+         </div>
+        </div>
+        <input accept="image/*" class="hidden" id="img-input" onchange="handleFile(this.files[0])" type="file">
+         <input accept="image/*" capture="environment" class="hidden" id="cam-input" onchange="handleFile(this.files[0])" type="file"/>
+        </input>
+       </div>
+       <div>
+        <label class="block text-xs font-bold mb-1.5 uppercase tracking-wider" style="color:var(--c2)">
+         📍
+Location *
+        </label>
+        <div class="flex items-center gap-3 flex-wrap">
+         <button class="btn-outline px-4 py-2.5 rounded-xl text-sm flex items-center gap-2" id="geo-btn" onclick="fetchLoc()" type="button">
+          📍 Get My
+Location
+         </button>
+         <span class="text-xs" id="coords" style="color:var(--c3)">
+         </span>
+        </div>
+        <input id="lat" type="hidden"/>
+        <input id="lng" type="hidden"/>
+       </div>
+       <div class="hidden text-red-500 bg-red-500/10 border border-red-500/30 p-3 rounded-xl mb-4 text-sm leading-tight font-semibold flex items-start gap-2" id="submit-error">
+       </div>
+       <button class="w-full btn-primary py-4 rounded-2xl text-base tracking-wide shadow-lg flex items-center justify-center gap-2 ripple-btn" id="submit-btn" onclick="submitReport()" type="button">
+        🚀
+Analyze &amp; Earn Points
+       </button>
+       <div class="hidden enter" id="result-card">
+        <div class="glass-card rounded-2xl p-5 mt-2 border-t-4 border-t-orange-400 relative overflow-hidden">
+         <div class="absolute -right-8 -top-8 w-32 h-32 bg-orange-200/15 rounded-full blur-2xl">
+         </div>
+         <div class="absolute -left-8 -bottom-8 w-32 h-32 bg-green-200/15 rounded-full blur-2xl">
+         </div>
+         <div class="relative z-10">
+          <div class="flex justify-between items-start mb-4">
+           <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest" style="color:var(--c3)">
+             AI Analysis
+Complete
+            </p>
+            <p class="text-2xl font-black mt-1">
+             +
+             <span class="grad-text" id="res-pts">
+              0
+             </span>
+             Points!
+            </p>
+           </div>
+           <div class="text-right" id="res-auth-box" style="display:none">
+            <span class="text-[10px] font-bold px-2 py-1 rounded-md inline-block" id="res-auth-badge">
+            </span>
+            <p class="text-[9px] mt-1 max-w-[140px] leading-tight" id="res-auth-note" style="color:var(--c3)">
+            </p>
+           </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3 mb-3">
+           <div class="rounded-xl p-3 border" style="background:var(--glass);border-color:var(--border)">
+            <p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">
+             Category
+            </p>
+            <p class="font-bold text-sm mt-1" id="res-cat">
+            </p>
+           </div>
+           <div class="rounded-xl p-3 border" style="background:var(--glass);border-color:var(--border)">
+            <p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">
+             Severity
+            </p>
+            <p class="font-bold text-sm mt-1" id="res-sev">
+            </p>
+           </div>
+          </div>
+          <div class="rounded-xl p-3 border mb-3" style="background:rgba(249,115,22,.05);border-color:rgba(249,115,22,.12)">
+           <p class="text-[9px] text-orange-500 font-bold uppercase tracking-widest mb-1">
+            📋 Action Plan
+           </p>
+           <p class="text-sm font-medium leading-relaxed" id="res-act">
+           </p>
+          </div>
+          <div class="hidden grid grid-cols-2 gap-2 mb-3" id="res-env-row">
+           <div class="rounded-xl p-2.5 border text-center" id="res-aqi-card" style="border-color:var(--border)">
+            <p class="text-[8px] font-bold uppercase tracking-widest" style="color:var(--c3)">
+             Air Quality
+            </p>
+            <p class="text-lg font-black mt-0.5" id="res-aqi-val">
+             —
+            </p>
+            <p class="text-[9px] font-bold" id="res-aqi-level">
+            </p>
+           </div>
+           <div class="rounded-xl p-2.5 border text-center" id="res-wx-card" style="border-color:var(--border)">
+            <p class="text-[8px] font-bold uppercase tracking-widest" style="color:var(--c3)">
+             Weather
+            </p>
+            <p class="text-lg mt-0.5" id="res-wx-icon">
+             —
+            </p>
+            <p class="text-[9px] font-bold" id="res-wx-desc">
+            </p>
+           </div>
+          </div>
+          <div class="hidden rounded-lg p-2 mb-3 text-[10px] font-bold text-center" id="res-wx-risk" style="background:rgba(239,68,68,.08);color:#ef4444;border:1px solid rgba(239,68,68,.2)">
+          </div>
+          <div class="hidden rounded-xl p-3 border mb-3" id="res-disposal" style="background:rgba(34,197,94,.05);border-color:rgba(34,197,94,.15)">
+           <p class="text-[9px] text-green-500 font-bold uppercase tracking-widest mb-1">
+            ♻️ Disposal Guide
+           </p>
+           <p class="text-xs font-medium leading-relaxed" id="res-disposal-text" style="color:var(--c2)">
+           </p>
+          </div>
+          <div class="flex gap-2">
+           <a class="flex-1 text-center btn-outline px-3 py-2 rounded-xl text-xs" href="#" id="res-maps" target="_blank">
+            🗺️ Google Maps
+           </a>
+           <button class="flex-1 btn-green px-3 py-2 rounded-xl text-xs" id="res-notify" onclick="notifyResult()">
+            📣
+Notify Authority
+           </button>
+           <button class="flex-1 btn-wa px-3 py-2 rounded-xl text-xs" id="res-share" onclick="shareWA()">
+            💬 WhatsApp
+           </button>
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="hidden rank-widget mt-3" id="rank-widget">
+        <p class="text-[10px] font-bold uppercase tracking-widest mb-1" style="color:var(--c3)">
+         🏅 Your Standing
+        </p>
+        <p class="text-sm font-bold" id="rank-text">
+        </p>
+       </div>
+      </div>
+     </div>
+     <div class="lg:col-span-2 space-y-5 enter" style="animation-delay:.25s">
+      <div class="glass rounded-2xl p-6">
+       <h3 class="text-sm font-black mb-4 flex items-center gap-2">
+        ⚡ How WasteWatch Works
+       </h3>
+       <div class="space-y-4">
+        <div class="flex gap-3">
+         <div class="feature-icon bg-orange-500/10">
+          <span>
+           📝
+          </span>
+         </div>
+         <div>
+          <p class="font-bold text-sm">
+           1. Describe the Issue
+          </p>
+          <p class="text-xs mt-0.5" style="color:var(--c3)">
+           Type what you see — waste type, hazard level, and
+details.
+          </p>
+         </div>
+        </div>
+        <div class="flex gap-3">
+         <div class="feature-icon bg-blue-500/10">
+          <span>
+           📸
+          </span>
+         </div>
+         <div>
+          <p class="font-bold text-sm">
+           2. Snap a Photo
+          </p>
+          <p class="text-xs mt-0.5" style="color:var(--c3)">
+           AI verifies authenticity and gives +5 bonus points.
+          </p>
+         </div>
+        </div>
+        <div class="flex gap-3">
+         <div class="feature-icon bg-green-500/10">
+          <span>
+           🤖
+          </span>
+         </div>
+         <div>
+          <p class="font-bold text-sm">
+           3. Gemini AI Analyzes
+          </p>
+          <p class="text-xs mt-0.5" style="color:var(--c3)">
+           Classifies waste, gauges severity, creates action
+plan.
+          </p>
+         </div>
+        </div>
+        <div class="flex gap-3">
+         <div class="feature-icon bg-purple-500/10">
+          <span>
+           📣
+          </span>
+         </div>
+         <div>
+          <p class="font-bold text-sm">
+           4. Authority Notified
+          </p>
+          <p class="text-xs mt-0.5" style="color:var(--c3)">
+           Local Nagar Nigam gets a structured email alert.
+          </p>
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="glass rounded-2xl p-6">
+       <h3 class="text-sm font-black mb-3 flex items-center gap-2">
+        <span class="activity-dot bg-green-500 inline-block">
+        </span>
+        Live Activity Feed
+       </h3>
+       <div class="space-y-3" id="activity-feed">
+        <div class="text-center py-4">
+         <p class="text-xs" style="color:var(--c3)">
+          Loading recent activity…
+         </p>
+        </div>
+       </div>
+      </div>
+      <div class="glass rounded-2xl p-6">
+       <h3 class="text-sm font-black mb-3">
+        🏅 Point System
+       </h3>
+       <div class="space-y-2 text-xs">
+        <div class="flex justify-between items-center p-2.5 rounded-lg" style="background:var(--glass)">
+         <span class="font-semibold">
+          Base Report
+         </span>
+         <span class="font-black text-orange-500">
+          +10 pts
+         </span>
+        </div>
+        <div class="flex justify-between items-center p-2.5 rounded-lg" style="background:var(--glass)">
+         <span class="font-semibold">
+          Photo Evidence
+         </span>
+         <span class="font-black text-green-500">
+          +5 pts
+         </span>
+        </div>
+        <div class="flex justify-between items-center p-2.5 rounded-lg" style="background:var(--glass)">
+         <span class="font-semibold">
+          New Location Discovery
+         </span>
+         <span class="font-black text-blue-500">
+          +3
+pts
+         </span>
+        </div>
+        <div class="flex justify-between items-center p-2.5 rounded-lg" style="background:var(--glass)">
+         <span class="font-semibold">
+          High Severity Found
+         </span>
+         <span class="font-black text-red-500">
+          +2 pts
+         </span>
+        </div>
+        <div class="flex justify-between items-center p-2.5 rounded-lg border border-red-200/30" style="background:rgba(239,68,68,.05)">
+         <span class="font-semibold text-red-400">
+          Fake Photo
+Penalty
+         </span>
+         <span class="font-black text-red-500">
+          -5 pts
+         </span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section class="max-w-5xl mx-auto px-4 sm:px-6 py-8 hidden" id="tab-leaderboard">
+    <div class="text-center mb-8 enter">
+     <h2 class="text-3xl sm:text-4xl font-black mb-2">
+      Civic
+      <span class="grad-green" data-i18n="lb_th">
+       Leaderboard
+      </span>
+     </h2>
+     <p class="text-sm" style="color:var(--c2)">
+      Top contributors last 10 days. Report waste to climb!
+     </p>
+    </div>
+    <div class="grid lg:grid-cols-3 gap-6">
+     <div class="lg:col-span-2 enter" style="animation-delay:.1s">
+      <div class="flex justify-center gap-1.5 mb-5 p-1 rounded-2xl max-w-sm mx-auto border" style="background:var(--pill-bg);border-color:var(--border)">
+       <button class="pill active flex-1 text-center" id="lb-national" onclick="loadLB('national')">
+        🇮🇳
+National
+       </button>
+       <button class="pill flex-1 text-center" id="lb-state" onclick="loadLB('state')">
+        🏛️ State
+       </button>
+       <button class="pill flex-1 text-center" id="lb-pincode" onclick="loadLB('pincode')">
+        📮 Pincode
+       </button>
+      </div>
+      <div class="hidden text-center mb-4" id="lb-filter-box">
+       <input class="px-4 py-2.5 text-sm w-52 text-center" id="lb-filter-val" placeholder="Enter state or pincode…" type="text"/>
+       <button class="btn-green px-4 py-2.5 rounded-xl text-sm ml-2" onclick="doLBFilter()">
+        Search
+       </button>
+      </div>
+      <div class="lb-scroll-wrap glass rounded-3xl overflow-hidden shadow-lg" style="border:1px solid var(--border2)">
+       <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table class="w-full text-left" id="lb-table" style="min-width:320px">
+         <thead style="background:var(--glass);border-bottom:1px solid var(--border)">
+          <tr class="text-[10px] uppercase tracking-widest font-bold" style="color:var(--c3)">
+           <th class="px-4 sm:px-6 py-4 w-14 text-center">
+            Rank
+           </th>
+           <th class="px-4 sm:px-6 py-4">
+            Citizen
+           </th>
+           <th class="px-4 sm:px-6 py-4 text-center">
+            Reports
+           </th>
+           <th class="px-4 sm:px-6 py-4 text-right">
+            Score
+           </th>
+          </tr>
+         </thead>
+         <tbody id="lb-body">
+          <tr>
+           <td class="px-6 py-10 text-center" colspan="4">
+            <div class="skeleton h-8 rounded-lg mb-3">
+            </div>
+            <div class="skeleton h-8 rounded-lg mb-3">
+            </div>
+            <div class="skeleton h-8 rounded-lg">
+            </div>
+           </td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+       <div class="hidden py-16 text-center" id="lb-empty">
+        <div class="text-5xl mb-3 opacity-40">
+         🏆
+        </div>
+        <p class="font-semibold" style="color:var(--c3)">
+         No activity yet. Be the first!
+        </p>
+       </div>
+      </div>
+     </div>
+     <div class="space-y-5 enter" style="animation-delay:.2s">
+      <div class="glass rounded-2xl p-6 text-center">
+       <p class="text-[10px] font-bold uppercase tracking-widest mb-2" style="color:var(--c3)">
+        Your Rank
+       </p>
+       <p class="text-5xl font-black grad-text" id="my-rank">
+        —
+       </p>
+       <p class="text-sm font-bold mt-1" id="my-pts" style="color:var(--c2)">
+        0 points
+       </p>
+      </div>
+      <div class="glass rounded-2xl p-6">
+       <h3 class="text-sm font-black mb-3">
+        🎯 Ranking Rules
+       </h3>
+       <ul class="text-xs space-y-2" style="color:var(--c2)">
+        <li class="flex gap-2">
+         <span>
+          🔄
+         </span>
+         Resets every 10 days
+        </li>
+        <li class="flex gap-2">
+         <span>
+          📍
+         </span>
+         200m anti-gaming radius
+        </li>
+        <li class="flex gap-2">
+         <span>
+          🔍
+         </span>
+         AI verifies photo authenticity
+        </li>
+        <li class="flex gap-2">
+         <span>
+          🌐
+         </span>
+         Filter by State or Pincode
+        </li>
+       </ul>
+      </div>
+      <div class="glass rounded-2xl p-6">
+       <h3 class="text-sm font-black mb-3">
+        🗺️ Hotspot Zones
+       </h3>
+       <div class="space-y-2 text-xs" id="hotspot-list" style="color:var(--c2)">
+        <p>
+         Loading hotspots…
+        </p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section>
+   <section class="max-w-7xl mx-auto px-4 sm:px-6 py-8 hidden" id="tab-admin">
+    <div class="flex items-center justify-between mb-6 flex-wrap gap-3 enter">
+     <div>
+      <h2 class="text-2xl sm:text-3xl font-black">
+       Municipal
+       <span class="grad-text" data-i18n="dash_th">
+        Dashboard
+       </span>
+      </h2>
+      <p class="text-xs" style="color:var(--c2)">
+       Real-time waste intelligence &amp; hotspot analytics
+      </p>
+     </div>
+     <button class="btn-outline px-4 py-2.5 rounded-xl text-sm flex items-center gap-2" onclick="loadDash()">
+      🔄
+Refresh
+     </button>
+    </div>
+    <div class="hidden glass rounded-2xl p-4 mb-6 border-l-4 border-orange-500 flex items-center gap-4 enter" id="ai-narrative-box">
+     <div class="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-xl shrink-0">
+      🧠
+     </div>
+     <div>
+      <p class="text-[9px] font-black uppercase tracking-widest text-orange-400">
+       Civic Intelligence Report
+      </p>
+      <p class="text-sm font-bold leading-relaxed" id="ai-narrative-text">
+       Analyzing city trends...
+      </p>
+     </div>
+    </div>
+    <div class="glass rounded-2xl p-4 mb-6 enter" style="animation-delay:.05s;border:1px solid rgba(249,115,22,.15)">
+     <div class="flex items-center gap-2 mb-3">
+      <span class="text-lg">
+       🇮🇳
+      </span>
+      <p class="text-[10px] font-black uppercase tracking-widest text-orange-400">
+       Swachh Bharat Mission — National Progress
+      </p>
+      <a class="ml-auto text-[9px] font-bold px-2 py-0.5 rounded-full border" href="https://swachhbharaturban.gov.in" style="color:var(--c3);border-color:var(--border)" target="_blank">
+       Source: MoHUA ↗
+      </a>
+     </div>
+     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="text-center p-2 rounded-xl" style="background:var(--glass)">
+       <p class="text-xl font-black text-green-500">
+        98%
+       </p>
+       <p class="text-[9px] font-bold uppercase tracking-wide mt-0.5" style="color:var(--c3)">
+        ODF Coverage
+       </p>
+      </div>
+      <div class="text-center p-2 rounded-xl" style="background:var(--glass)">
+       <p class="text-xl font-black text-orange-500">
+        1.5L
+       </p>
+       <p class="text-[9px] font-bold uppercase tracking-wide mt-0.5" style="color:var(--c3)">
+        Tonnes/Day Waste
+       </p>
+      </div>
+      <div class="text-center p-2 rounded-xl" style="background:var(--glass)">
+       <p class="text-xl font-black text-blue-400">
+        4,800+
+       </p>
+       <p class="text-[9px] font-bold uppercase tracking-wide mt-0.5" style="color:var(--c3)">
+        Urban Local Bodies
+       </p>
+      </div>
+      <div class="text-center p-2 rounded-xl" style="background:var(--glass)">
+       <p class="text-xl font-black" style="color:var(--accent)">
+        77%
+       </p>
+       <p class="text-[9px] font-bold uppercase tracking-wide mt-0.5" style="color:var(--c3)">
+        Waste Processed
+       </p>
+      </div>
+     </div>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6" id="stat-grid">
+     <div class="glass-card rounded-2xl p-4 text-center stagger" style="animation-delay:.05s;border-bottom:2px solid #f97316">
+      <div class="quick-stat">
+       <p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">
+        📊 Total Reports
+       </p>
+       <p class="num" id="st-total">
+        0
+       </p>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4 text-center stagger" style="animation-delay:.12s;border-bottom:2px solid #f97316">
+      <div class="quick-stat">
+       <p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">
+        📂 Open Cases
+       </p>
+       <p class="num text-orange-500" id="st-open">
+        0
+       </p>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4 text-center stagger" style="animation-delay:.19s;border-bottom:2px solid #ef4444">
+      <div class="quick-stat">
+       <p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">
+        🔴 High Severity
+       </p>
+       <p class="num text-red-500" id="st-high">
+        0
+       </p>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4 text-center stagger" style="animation-delay:.26s;border-bottom:2px solid #22c55e">
+      <div class="quick-stat">
+       <p class="text-[9px] font-bold uppercase tracking-widest" style="color:var(--c3)">
+        📷 With Photo
+       </p>
+       <p class="num text-green-500" id="st-photo">
+        0
+       </p>
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-4 text-center col-span-2 lg:col-span-1 border-t-2 border-t-red-400 stagger" style="animation-delay:.33s;border-bottom:2px solid #ef4444">
+      <div class="quick-stat">
+       <p class="text-[9px] text-red-400 font-bold uppercase tracking-widest">
+        ⚠️ Worst Area
+       </p>
+       <p class="num text-red-500 text-lg truncate" id="st-worst">
+        N/A
+       </p>
+      </div>
+     </div>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+     <div class="glass-card rounded-2xl p-5 enter" style="animation-delay:.38s">
+      <h4 class="text-xs font-bold uppercase tracking-widest mb-3" style="color:var(--c3)">
+       📊 Severity Distribution
+      </h4>
+      <div class="flex items-center justify-center">
+       <svg height="120" id="sev-pie" viewbox="0 0 120 120" width="120">
+       </svg>
+      </div>
+      <div class="flex justify-center gap-4 mt-3 text-[10px] font-bold" id="sev-legend">
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-5 enter" style="animation-delay:.42s">
+      <h4 class="text-xs font-bold uppercase tracking-widest mb-3" style="color:var(--c3)">
+       📈 Reports This Week
+      </h4>
+      <svg height="100" id="week-bars" style="max-height:100px" viewbox="0 0 280 100" width="100%">
+      </svg>
+     </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+     <div class="glass-card rounded-2xl p-5 enter" style="animation-delay:.45s">
+      <h4 class="text-xs font-bold uppercase tracking-widest mb-3 text-orange-400">
+       🔮 7-Day Trend Forecast
+      </h4>
+      <p class="text-xs font-medium mb-4 leading-relaxed" id="trend-text">
+      </p>
+      <div class="flex items-end justify-between h-20 gap-1 mt-2" id="forecast-bars">
+      </div>
+     </div>
+     <div class="glass-card rounded-2xl p-5 enter" style="animation-delay:.48s">
+      <h4 class="text-xs font-bold uppercase tracking-widest mb-3 text-green-400">
+       🌿 Ecosystem Recovery Focus
+      </h4>
+      <div class="space-y-3">
+       <div>
+        <p class="text-[9px] uppercase tracking-widest font-bold mb-1" style="color:var(--c3)">
+         High-Risk Categories
+        </p>
+        <div class="flex flex-wrap gap-2" id="trend-cats">
+        </div>
+       </div>
+       <div>
+        <p class="text-[9px] uppercase tracking-widest font-bold mb-1" style="color:var(--c3)">
+         LLM Recommendation
+        </p>
+        <p class="text-[11px] italic leading-tight" id="trend-rec" style="color:var(--c2)">
+        </p>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="glass-card rounded-3xl p-4 mb-6 shadow-lg enter" style="animation-delay:.15s">
+     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 px-1 gap-2">
+      <h3 class="font-bold text-sm flex items-center gap-2">
+       📍 Incident Heatmap
+      </h3>
+      <div class="flex gap-3 items-center text-[10px] font-bold flex-wrap" style="color:var(--c3)">
+       <button class="btn-outline px-2.5 py-1 rounded-lg text-[10px]" id="map-mode-btn" onclick="toggleMapMode()">
+        🛰️ Satellite
+       </button>
+       <span class="flex items-center gap-1">
+        <span class="w-3 h-3 rounded-full bg-red-500 inline-block gl-h">
+        </span>
+        High
+       </span>
+       <span class="flex items-center gap-1">
+        <span class="w-3 h-3 rounded-full bg-yellow-400 inline-block gl-m">
+        </span>
+        Med
+       </span>
+       <span class="flex items-center gap-1">
+        <span class="w-3 h-3 rounded-full bg-green-400 inline-block gl-l">
+        </span>
+        Low
+       </span>
+      </div>
+     </div>
+     <div id="map">
+     </div>
+    </div>
+    <div class="glass-card rounded-3xl overflow-hidden shadow-lg enter" style="animation-delay:.2s">
+     <div class="flex items-center gap-4 px-5 py-4 border-b" style="background:var(--glass);border-color:var(--border)">
+      <h3 class="font-bold flex-1">
+       📋 Incident Log
+      </h3>
+      <input class="px-3 py-2 text-xs w-56" id="tbl-search" oninput="filterTbl()" placeholder="Search reports…" type="search"/>
+     </div>
+     <div class="overflow-x-auto desk-table">
+      <table class="w-full text-sm text-left">
+       <thead style="background:var(--glass);border-bottom:1px solid var(--border)">
+        <tr class="text-[10px] uppercase tracking-widest font-bold" style="color:var(--c3)">
+         <th class="px-4 py-3">
+          Photo
+         </th>
+         <th class="px-4 py-3">
+          ID
+         </th>
+         <th class="px-4 py-3">
+          Description
+         </th>
+         <th class="px-4 py-3">
+          Cat/Sev
+         </th>
+         <th class="px-4 py-3">
+          Status
+         </th>
+         <th class="px-4 py-3">
+          Location
+         </th>
+         <th class="px-4 py-3">
+          Auth
+         </th>
+         <th class="px-4 py-3 text-right">
+          Actions
+         </th>
+        </tr>
+       </thead>
+       <tbody class="divide-y" id="rpt-body" style="border-color:var(--border)">
+       </tbody>
+      </table>
+     </div>
+     <div class="mob-cards" id="mob-cards-wrap">
+     </div>
+     <p class="hidden py-12 text-center font-medium" id="no-rpt" style="color:var(--c3)">
+      No reports found.
+     </p>
+    </div>
+   </section>
+   <div id="lightbox" onclick="this.classList.remove('active')">
+    <img alt="Full" id="lb-img" src=""/>
+   </div>
+       <button aria-label="Open AI Voice Assistant" id="va-fab" onclick="toggleVA()" title="AI Voice Assistant">
+    <img alt="VA" src="/logo_circular.webp"/>
+   </button>
+   <div id="va-panel">
+    <div class="flex items-center justify-between mb-1">
+     <div>
+      <p class="text-xs font-black uppercase tracking-widest" data-i18n="va_title" style="color:var(--c3)">
+       AI Voice Guide
+      </p>
+      <p class="text-[10px] mt-0.5" data-i18n="va_sub" style="color:var(--c3)">
+       Type or speak in Hindi / English
+      </p>
+     </div>
+     <div style="display:flex;align-items:center;gap:8px">
+      <button id="va-voice-mode-btn" onclick="toggleVoiceMode()" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:800;padding:4px 8px;border-radius:20px;border:1px solid var(--border2);background:var(--glass);color:var(--c3);cursor:pointer;white-space:nowrap;transition:all .2s" title="Toggle Voice Mode (auto-speak replies)">
+       🔈 Voice: OFF
+      </button>
+      <button onclick="toggleVA()" style="background:none;border:none;cursor:pointer;color:var(--c3);font-size:18px;line-height:1">
+       ✕
+      </button>
+     </div>
+    </div>
+    <div id="va-msgs">
+    </div>
+    <div class="wave-bars hidden justify-center py-1" id="va-wave">
+     <span>
+     </span>
+     <span>
+     </span>
+     <span>
+     </span>
+     <span>
+     </span>
+     <span>
+     </span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border2)">
+     <div style="display:flex;align-items:center;gap:6px">
+      <button data-i18n="va_btn" id="va-mic" onclick="vaSpeak()" style="display:inline-flex;align-items:center;justify-content:center;gap:4px;height:36px;padding:0 12px;border-radius:12px;font-size:11px;font-weight:800;white-space:nowrap;flex-shrink:0;background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;border:none;cursor:pointer">
+       🎙️ Speak
+      </button>
+      <input id="va-txt-input" onkeydown="if(event.key==='Enter')vaSendText()" placeholder="Type a message…" style="flex:1;height:36px;padding:0 12px;border-radius:12px;border:1px solid var(--border2);background:var(--input-bg);color:var(--c1);font-size:12px;outline:none" type="text"/>
+      <button onclick="vaSendText()" style="display:inline-flex;align-items:center;justify-content:center;height:36px;width:36px;border-radius:12px;flex-shrink:0;background:linear-gradient(135deg,#f97316,#fb923c);color:#fff;border:none;cursor:pointer;font-size:16px">
+       ➤
+      </button>
+      <button onclick="vaStop()" style="display:inline-flex;align-items:center;justify-content:center;height:36px;width:36px;border-radius:12px;flex-shrink:0;border:1px solid var(--border2);background:var(--glass);color:var(--c2);cursor:pointer;font-size:16px" title="Pause speech">
+       ⏸
+      </button>
+     </div>
+     <div style="display:flex;justify-content:flex-end">
+      <button onclick="vaClear()" style="display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:10px;border:1px solid var(--border2);background:var(--glass);color:var(--c3);font-size:11px;cursor:pointer">
+       🗑️ Clear
+      </button>
+     </div>
+    </div>
+   </div>
+   <footer class="text-center py-8 mt-8">
+    <div class="inline-flex items-center gap-2 glass px-5 py-2.5 rounded-full text-xs font-semibold shadow-sm" style="color:var(--c2)">
+     <img alt="IN" class="h-3.5 w-auto rounded-sm drop-shadow-sm mr-1" src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg"/>
+     WasteWatch · Powered by
+     <span class="font-bold text-orange-500">
+      Google Gemini &amp; Groq AI
+     </span>
+    </div>
+   </footer>
+  </div>
+  <script>
+   let map, mLayer, hLayer, allRpts = [], allHot = [], selFile = null, lastRes = null, curLB = 'national', baseTile = null, mapMode = 'street', authMode = 'login';
 let userCity = '', voiceMode = false;
 const Storage = {
 get: (k) => { try { return window.localStorage.getItem(k) } catch(e) { return null } },
@@ -2385,6 +2789,6 @@ navigator.serviceWorker.register('/sw.js').then(reg => {
 console.log('SW registered:', reg.scope);
 }).catch(err => console.log('SW registration skipped:', err));
 }
-</script>
-</body>
+  </script>
+ </body>
 </html>
