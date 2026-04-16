@@ -1,0 +1,19 @@
+{
+  "name": "WasteWatch – AI Civic Intelligence",
+  "short_name": "WasteWatch",
+  "description": "AI-powered civic waste reporting platform for Swachh Bharat",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020617",
+  "theme_color": "#f97316",
+  "categories": ["utilities", "government"],
+  "icons": [
+    {
+      "src": "/logo.webp",
+      "sizes": "192x192 512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ]
+}

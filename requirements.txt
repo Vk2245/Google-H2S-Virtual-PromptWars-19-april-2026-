@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+google-genai
+python-dotenv
+pytest
+httpx
+python-multipart
+supabase
+psycopg2-binary
+groq

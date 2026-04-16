@@ -1,0 +1,66 @@
+# ──────────────────────────────────────
+# WasteWatch – .gitignore
+# ──────────────────────────────────────
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# SQLite Database
+*.db
+*.sqlite3
+
+# Large Assets (logos are now compressed <300KB each — included in repo)
+# logo.png
+# logo_circular.png
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Uploads
+uploads/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs & Plan Files
+chat*.md
+Building WasteWatch*.md
+Finalizing WasteWatch*.md
+Implementing WasteWatch*.md
+working.txt
+plan.txt
+demo_cred.txt
+implementation_plan.md
+implementation_plan(latest)
+submission.txt
+
+# Scripts
+patch_main.py
+build_ui.py
+run_debug.py
+assemble_ui.py
+ui_part*.txt
+get_db_lines.py
+
+!README.md
+!requirements.txt
